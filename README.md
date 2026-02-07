@@ -39,11 +39,10 @@ JOIN Order_items oi ON o.Order_id = oi.Order_id
 JOIN Products p ON oi.Product_id = p.Product_id
 GROUP BY c.Region, p.Product_name;
 ```
+**This query ranks products by revenue within each region, allowing management to identify top-performing and low-performing products. The ranking functions handle ties differently, making them flexible for use in performance evaluation.**
 
-This query ranks products by revenue within each region, allowing management to identify top-performing and low-performing products. The ranking functions handle ties differently, making them flexible for use in performance evaluation.
+## a)Running Monthly Sales Total (ROWS):
 
-a) Running Monthly Sales Total (ROWS):
-Interpretation
 This query calculates cumulative sales over time for each region, which helps management analyze sales growth trends.
 
 (b) Three-Month Moving Average (RANGE):
