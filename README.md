@@ -60,8 +60,20 @@ GROUP BY c.Region, TRUNC(o.Order_date, 'MM');
 ```
 **This query calculates cumulative sales over time for each region, which helps management analyze sales growth trends.**
 
-(b) Three-Month Moving Average (RANGE):
-Interpretation
+## (b) Three-Month Moving Average (RANGE):
+```
+SELECT
+    TRUNC(o.Order_date, 'MM') AS sales_month,
+    SUM(oi.Quantity * p.Price) AS monthly_sales,
+    AVG(SUM(oi.Quantity * p.Price)) OVER (
+        ORDER BY TRUNC(o.Order_date, 'MM')
+        RANGE BETWEEN INTERVAL '2' MONTH PRECEDING AND CURRENT ROW
+    ) AS moving_avg_3_months
+FROM Orders o
+JOIN Order_items oi ON o.Order_id = oi.Order_id
+JOIN Products p ON oi.Product_id = p.Product_id
+GROUP BY TRUNC(o.Order_date, 'MM');
+```
 This query helps management smooth out short-term variations by calculating a moving average of sales over three months.
 
 Month-over-month growth comparison:
