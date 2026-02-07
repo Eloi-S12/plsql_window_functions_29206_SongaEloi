@@ -12,6 +12,33 @@ The company aims to achieve analytical insights that would help the company in i
 # Success Criteria 
 ## Rank products by revenue per region: 
 
+```
+SELECT
+    c.Region,
+    p.Product_name,
+    SUM(oi.Quantity * p.Price) AS total_revenue,
+    ROW_NUMBER() OVER (
+        PARTITION BY c.Region
+        ORDER BY SUM(oi.Quantity * p.Price) DESC
+    ) AS row_num,
+    RANK() OVER (
+        PARTITION BY c.Region
+        ORDER BY SUM(oi.Quantity * p.Price) DESC
+    ) AS rank_num,
+    DENSE_RANK() OVER (
+        PARTITION BY c.Region
+        ORDER BY SUM(oi.Quantity * p.Price) DESC
+    ) AS dense_rank_num,
+    PERCENT_RANK() OVER (
+        PARTITION BY c.Region
+        ORDER BY SUM(oi.Quantity * p.Price) DESC
+    ) AS percent_rank
+FROM customers c
+JOIN Orders o ON c.Customer_id = o.Customer_id
+JOIN Order_items oi ON o.Order_id = oi.Order_id
+JOIN Products p ON oi.Product_id = p.Product_id
+GROUP BY c.Region, p.Product_name;
+```
 
 This query ranks products by revenue within each region, allowing management to identify top-performing and low-performing products. The ranking functions handle ties differently, making them flexible for use in performance evaluation.
 
