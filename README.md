@@ -9,6 +9,49 @@ The company lacks clear visibility about the top-performing products, inactive c
 ## Expected Outcome
 The company aims to achieve analytical insights that would help the company in identifying the top products, sales trends, identifying inactive customers, and customer segmentation.
 
+## Database Schema Design and related tables with primary and foreign keys.
+
+### Customers table
+```
+CREATE TABLE customers (
+ Customer_id NUMBER PRIMARY KEY,
+ Customer_name VARCHAR(250),
+ Region VARCHAR(250)
+);
+```
+### Products table
+```
+CREATE TABLE Products (
+ Product_id NUMBER PRIMARY KEY,
+ Product_name VARCHAR(250),
+ Category VARCHAR(250),
+ Price NUMBER(15)
+);
+```
+### Orders table
+```
+CREATE TABLE Orders (
+ Order_id NUMBER PRIMARY KEY,
+ Customer_id NUMBER,
+ Order_date DATE,
+ CONSTRAINT fk_orders_customer
+ FOREIGN KEY (Customer_id) REFERENCES customers (Customer_id)
+);
+```
+### Order_items table
+```
+CREATE TABLE Order_items (
+ Order_items_id NUMBER PRIMARY KEY,
+ Order_id NUMBER,
+ Product_id NUMBER,
+ Quantity NUMBER,
+ CONSTRAINT fk_items_order
+ FOREIGN KEY (Order_id) REFERENCES Orders (Order_id),
+ CONSTRAINT fk_items_product
+ FOREIGN KEY (Product_id) REFERENCES Products (Product_id)
+ );
+```
+
 # Success Criteria 
 ## Rank products by revenue per region: 
 
@@ -41,7 +84,7 @@ GROUP BY c.Region, p.Product_name;
 ```
 **This query ranks products by revenue within each region, allowing management to identify top-performing and low-performing products. The ranking functions handle ties differently, making them flexible for use in performance evaluation.**
 
-## a) Running Monthly Sales Total (ROWS):
+## (a) Running Monthly Sales Total (ROWS):
 ```
 SELECT
     c.Region,
@@ -74,17 +117,56 @@ JOIN Order_items oi ON o.Order_id = oi.Order_id
 JOIN Products p ON oi.Product_id = p.Product_id
 GROUP BY TRUNC(o.Order_date, 'MM');
 ```
-This query helps management smooth out short-term variations by calculating a moving average of sales over three months.
+**This query helps management smooth out short-term variations by calculating a moving average of sales over three months.**
 
-Month-over-month growth comparison:
-Interpretation
-This query calculating a month-to-month sales growth. This helps management to quickly identify sales performance increases or decreases.
+## Month-over-month growth comparison:
+```
+SELECT
+    sales_month,
+    monthly_sales,
+    LAG(monthly_sales, 1) OVER (
+        ORDER BY sales_month
+    ) AS previous_month_sales,
+    (monthly_sales - LAG(monthly_sales, 1) OVER (
+        ORDER BY sales_month
+    )) AS month_growth
+FROM (
+    SELECT
+        TRUNC(o.Order_date, 'MM') AS sales_month,
+        SUM(oi.Quantity * p.Price) AS monthly_sales
+    FROM Orders o
+    JOIN Order_items oi ON o.Order_id = oi.Order_id
+    JOIN Products p ON oi.Product_id = p.Product_id
+    GROUP BY TRUNC(o.Order_date, 'MM')
+);
+```
+**This query calculating a month-to-month sales growth. This helps management to quickly identify sales performance increases or decreases.**
 
-Customer revenue segmentation
-Interpretation
-The query helps segment customers by their revenue contribution, enables businesses to focus marketing efforts on their high-value customers.
+## Customer revenue segmentation
+```
+SELECT
+    customer_name,
+    total_spent,
+    NTILE(4) OVER (
+        ORDER BY total_spent DESC
+    ) AS revenue_quartile,
+    CUME_DIST() OVER (
+        ORDER BY total_spent DESC
+    ) AS cumulative_distribution
+FROM (
+    SELECT
+        c.Customer_name,
+        SUM(oi.Quantity * p.Price) AS total_spent
+    FROM customers c
+    JOIN Orders o ON c.Customer_id = o.Customer_id
+    JOIN Order_items oi ON o.Order_id = oi.Order_id
+    JOIN Products p ON oi.Product_id = p.Product_id
+    GROUP BY c.Customer_name
+);
+```
+**The query helps segment customers by their revenue contribution, enables businesses to focus marketing efforts on their high-value customers.**
 
-Step 3: Database Schema Design Design at least three (3) related tables with primary and foreign keys.
+
 
 Step 4: Part A — SQL JOINs Implementation
 INNER JOIN Retrieve transactions with valid customers and products:
