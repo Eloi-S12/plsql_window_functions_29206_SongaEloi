@@ -41,9 +41,24 @@ GROUP BY c.Region, p.Product_name;
 ```
 **This query ranks products by revenue within each region, allowing management to identify top-performing and low-performing products. The ranking functions handle ties differently, making them flexible for use in performance evaluation.**
 
-## a)Running Monthly Sales Total (ROWS):
-
-This query calculates cumulative sales over time for each region, which helps management analyze sales growth trends.
+## a) Running Monthly Sales Total (ROWS):
+```
+SELECT
+    c.Region,
+    TRUNC(o.Order_date, 'MM') AS sales_month,
+    SUM(oi.Quantity * p.Price) AS monthly_sales,
+    SUM(SUM(oi.Quantity * p.Price)) OVER (
+        PARTITION BY c.Region
+        ORDER BY TRUNC(o.Order_date, 'MM')
+        ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+    ) AS running_total
+FROM customers c
+JOIN Orders o ON c.Customer_id = o.Customer_id
+JOIN Order_items oi ON o.Order_id = oi.Order_id
+JOIN Products p ON oi.Product_id = p.Product_id
+GROUP BY c.Region, TRUNC(o.Order_date, 'MM');
+```
+**This query calculates cumulative sales over time for each region, which helps management analyze sales growth trends.**
 
 (b) Three-Month Moving Average (RANGE):
 Interpretation
