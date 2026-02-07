@@ -1,17 +1,21 @@
 # Problem Definition
 
 ## Business Context
+
 The company specializes in retail sales with a presence in various regions. The company aims to evaluate its sales performance as well as customer purchase behavior. The analysis of the company is carried out by the Sales Analytics Department.
 
 ## Data Challenge
+
 The company lacks clear visibility about the top-performing products, inactive customers, sales trends over a period of time, and customer segmentation based on revenue. The reports that are being generated are not giving any analytical insights about the sales transactions.
 
 ## Expected Outcome
+
 The company aims to achieve analytical insights that would help the company in identifying the top products, sales trends, identifying inactive customers, and customer segmentation.
 
 ## Database Schema Design and related tables with primary and foreign keys.
 
 ### Customers table
+
 ```
 CREATE TABLE customers (
  Customer_id NUMBER PRIMARY KEY,
@@ -19,7 +23,9 @@ CREATE TABLE customers (
  Region VARCHAR(250)
 );
 ```
+
 ### Products table
+
 ```
 CREATE TABLE Products (
  Product_id NUMBER PRIMARY KEY,
@@ -28,7 +34,9 @@ CREATE TABLE Products (
  Price NUMBER(15)
 );
 ```
+
 ### Orders table
+
 ```
 CREATE TABLE Orders (
  Order_id NUMBER PRIMARY KEY,
@@ -38,7 +46,9 @@ CREATE TABLE Orders (
  FOREIGN KEY (Customer_id) REFERENCES customers (Customer_id)
 );
 ```
+
 ### Order_items table
+
 ```
 CREATE TABLE Order_items (
  Order_items_id NUMBER PRIMARY KEY,
@@ -51,6 +61,94 @@ CREATE TABLE Order_items (
  FOREIGN KEY (Product_id) REFERENCES Products (Product_id)
  );
 ```
+
+
+## Part A — SQL JOINs Implementation
+
+### INNER JOIN: Retrieve transactions with valid customers and products
+
+The query only displays confirmed sales transactions for which customers, orders, and products exist. This query enables management to analyze what customers have bought, where they are located, and how much revenue is being generated.
+
+```
+SELECT 
+ c.Customer_name,
+ c.Region,
+ p.Product_name,
+ oi.Quantity,
+ p.price,
+ (oi.quantity * p.price) AS total_amount
+FROM customers c
+INNER JOIN Orders o
+ ON c.Customer_id = o.Customer_id
+INNER JOIN Order_items oi
+ ON o.Order_id = oi.Order_id
+INNER JOIN Products p
+ ON oi.Product_id = p.Product_id;
+```
+
+### LEFT JOIN: Identify customers who have never made a transaction
+
+This query shows customers who have never ordered from the business. They may be contacted with offers.
+
+```
+SELECT 
+ c.Customer_id,
+ c.Customer_name,
+ c.Region 
+FROM customers c
+LEFT JOIN Orders o
+ ON c.Customer_id = o.Customer_id
+ WHERE o.Order_id IS NULL
+;
+```
+
+### RIGHT JOIN: Detect products with no sales activity
+
+The query shows products that have zero sales, helping management make a decision whether to withdraw such products or not.
+
+```
+SELECT 
+ p.Product_id,
+ p.Product_name,
+ p.Category
+FROM Order_items oi
+RIGHT JOIN Products p
+ ON oi.Product_id = p.Product_id
+WHERE oi.Order_items_id IS NULL;
+```
+
+### FULL OUTER JOIN: Compare customers and products including unmatched records
+
+This query will provide a whole picture of the business, including customers who have not made any purchases and products that are not selling.
+
+```
+SELECT 
+ c.customer_name,
+ p.product_name
+FROM customers c
+FULL OUTER JOIN Orders o
+ ON c.Customer_id = o.Customer_id
+FULL OUTER JOIN Order_items oi
+ ON o.Order_id = oi.Order_id
+FULL OUTER JOIN Products p
+ ON oi.Product_id = p.Product_id;
+```
+
+### SELF JOIN: Compare customers within the same region
+
+This self-join query can help compare customers based on regions, which can help the business understand customer concentration in different regions.
+
+```
+SELECT 
+ c1.Customer_name AS customer_1,
+ c2.Customer_name AS customer_2,
+ c1.region
+FROM customers c1
+JOIN customers c2
+ ON c1.region = c2.region
+ AND c1.customer_id < c2.customer_id;
+```
+
 
 # Success Criteria 
 ## Rank products by revenue per region: 
@@ -166,32 +264,4 @@ FROM (
 ```
 **The query helps segment customers by their revenue contribution, enables businesses to focus marketing efforts on their high-value customers.**
 
-
-
-Step 4: Part A — SQL JOINs Implementation
-INNER JOIN Retrieve transactions with valid customers and products:
-Business Interpretation
-The query only displays confirmed sales transactions for which customers, orders, and products exist. This query enables management to analyze what customers have bought, where they are located, and how much revenue is being generated.
-
-LEFT JOIN Identify customers who have never made a transaction
-Business Interpretation
-This query shows customers who have never ordered from the business. They may be contacted with offers.
-
-RIGHT JOIN Detect products with no sales activity:
-
-Business Interpretation
-
-The query shows products that have zero sales, helping management make a decision whether to withdraw such products or not.
-
-FULL OUTER JOIN Compare customers and products including unmatched records
-Business Interpretation
-
-This query will provide a whole picture of the business, including customers who have not made any purchases and products that are not selling.
-
-
-SELF JOIN Compare customers within the same region
-
-Business Interpretation
-
-This self-join query can help compare customers based on regions, which can help the business understand customer concentration in different regions.
 
