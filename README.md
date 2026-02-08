@@ -2,7 +2,7 @@
 
 ## Business Context
 
-The company specializes in retail sales with a presence in various regions. The company aims to evaluate its sales performance as well as customer purchase behavior. The analysis of the company is carried out by the Sales Analytics Department.
+The company operates in several regions and sells its products. The company would like to know how the sales are performing and the behavior of the customers when it comes to purchasing the product. This task is carried out by the Sales Analytics Department.
 
 ## Data Challenge
 
