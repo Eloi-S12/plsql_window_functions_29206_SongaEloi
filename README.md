@@ -23,6 +23,7 @@ CREATE TABLE customers (
  Region VARCHAR(250)
 );
 ```
+for example: [![Customers Table](/Tables/Customer%20Table.png)]()
 
 ### Products table
 
