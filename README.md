@@ -35,6 +35,7 @@ CREATE TABLE Products (
  Price NUMBER(15)
 );
 ```
+for example [![Products Table](/Tables/Product%20table.png)](/Tables/Product%20table.png)
 
 ### Orders table
 
@@ -47,6 +48,7 @@ CREATE TABLE Orders (
  FOREIGN KEY (Customer_id) REFERENCES customers (Customer_id)
 );
 ```
+for example [![Orders Table](/Tables/Orders%20Table.png)](/Tables/Orders%20Table.png)
 
 ### Order_items table
 
@@ -62,6 +64,7 @@ CREATE TABLE Order_items (
  FOREIGN KEY (Product_id) REFERENCES Products (Product_id)
  );
 ```
+for example [![Order_items](/Tables/Order_items.png)](/Tables/Order_items.png)
 
 
 ## Part A — SQL JOINs Implementation
@@ -86,6 +89,8 @@ INNER JOIN Order_items oi
 INNER JOIN Products p
  ON oi.Product_id = p.Product_id;
 ```
+ for example [![INNER JOIN](/Joins/1%20Inner%20join.png)](/Joins/1%20Inner%20join.png)
+
 
 ### LEFT JOIN: Identify customers who have never made a transaction
 
@@ -102,6 +107,7 @@ LEFT JOIN Orders o
  WHERE o.Order_id IS NULL
 ;
 ```
+for example [![LEFT JOIN](/Joins/2%20left%20join.png)](/Joins/2%20left%20join.png)
 
 ### RIGHT JOIN: Detect products with no sales activity
 
@@ -117,6 +123,7 @@ RIGHT JOIN Products p
  ON oi.Product_id = p.Product_id
 WHERE oi.Order_items_id IS NULL;
 ```
+for example [![RIGHT JOIN](/Joins/3%20Right%20join.png)](/Joins/3%20Right%20join.png)
 
 ### FULL OUTER JOIN: Compare customers and products including unmatched records
 
@@ -134,6 +141,7 @@ FULL OUTER JOIN Order_items oi
 FULL OUTER JOIN Products p
  ON oi.Product_id = p.Product_id;
 ```
+for example [![FULL OUTER JOIN](/Joins/4%20Full%20outer%20join.png)](/Joins/4%20Full%20outer%20join.png)
 
 ### SELF JOIN: Compare customers within the same region
 
@@ -149,6 +157,7 @@ JOIN customers c2
  ON c1.region = c2.region
  AND c1.customer_id < c2.customer_id;
 ```
+for example [![SELF JOIN](/Joins/5%20Self%20join.png)](/Joins/5%20Self%20join.png)
 
 
 # Success Criteria 
@@ -181,6 +190,8 @@ JOIN Order_items oi ON o.Order_id = oi.Order_id
 JOIN Products p ON oi.Product_id = p.Product_id
 GROUP BY c.Region, p.Product_name;
 ```
+example: [![Rank products by revenue per region](/Window%20Functions/1%20Rank%20products%20by%20revenue%20per%20region.png)](/Window%20Functions/1%20Rank%20products%20by%20revenue%20per%20region.png)
+
 **This query ranks products by revenue within each region, allowing management to identify top-performing and low-performing products. The ranking functions handle ties differently, making them flexible for use in performance evaluation.**
 
 ## (a) Running Monthly Sales Total (ROWS):
@@ -200,6 +211,8 @@ JOIN Order_items oi ON o.Order_id = oi.Order_id
 JOIN Products p ON oi.Product_id = p.Product_id
 GROUP BY c.Region, TRUNC(o.Order_date, 'MM');
 ```
+example: [![Running Monthly Sales Total (ROWS)](/Window%20Functions/2%20Running%20Monthly%20Sales%20Total%20(ROWS).png)](/Window%20Functions/2%20Running%20Monthly%20Sales%20Total%20(ROWS).png)
+
 **This query calculates cumulative sales over time for each region, which helps management analyze sales growth trends.**
 
 ## (b) Three-Month Moving Average (RANGE):
@@ -216,6 +229,8 @@ JOIN Order_items oi ON o.Order_id = oi.Order_id
 JOIN Products p ON oi.Product_id = p.Product_id
 GROUP BY TRUNC(o.Order_date, 'MM');
 ```
+example: [![Three-Month Moving Average (RANGE)](/Window%20Functions/5%20Three-Month%20Moving%20Average%20(RANGE).png)](/Window%20Functions/5%20Three-Month%20Moving%20Average%20(RANGE).png)
+
 **This query helps management smooth out short-term variations by calculating a moving average of sales over three months.**
 
 ## Month-over-month growth comparison:
@@ -239,6 +254,9 @@ FROM (
     GROUP BY TRUNC(o.Order_date, 'MM')
 );
 ```
+
+example: [![Month-over-month growth comparison](/Window%20Functions/3%20Month-over-month%20growth%20comparison.png)](/Window%20Functions/3%20Month-over-month%20growth%20comparison.png)
+
 **This query calculating a month-to-month sales growth. This helps management to quickly identify sales performance increases or decreases.**
 
 ## Customer revenue segmentation
@@ -263,6 +281,9 @@ FROM (
     GROUP BY c.Customer_name
 );
 ```
+
+example: [![Customer revenue segmentation](/Window%20Functions/4%20Customer%20revenue%20segmentation.png)](/Window%20Functions/4%20Customer%20revenue%20segmentation.png)
+
 **The query helps segment customers by their revenue contribution, enables businesses to focus marketing efforts on their high-value customers.**
 
 
